@@ -6,30 +6,35 @@ http.createServer((request, response) => {
         response.writeHead(200, {"Content-Type": "text/html; charset=utf-8"});
         if (request.url === '/page1/') {
             reader.readFile('./content/index1.html', (err, data) => {
-                let title = getTitle(data);
-                response.end(insertContent(cleanSymbols(data), title));
+                if (err) throw err;
+                sendRespWithContent(cleanSymbols(data), getTitle(data), response);
             });
             return
         }
         if (request.url === '/page2/') {
             reader.readFile('./content/index2.html', (err, data) => {
-                let title = getTitle(data);
-                response.end(insertContent(cleanSymbols(data), title));
+                if (err) throw err;
+                sendRespWithContent(cleanSymbols(data), getTitle(data), response);
             });
             return
         }
         if (request.url === '/page3/') {
             reader.readFile('./content/index3.html', (err, data) => {
-                let title = getTitle(data);
-                response.end(insertContent(cleanSymbols(data), title));
+                if (err) throw err;
+                sendRespWithContent(cleanSymbols(data), getTitle(data), response);
             });
         }
     }
 }).listen(8080);
 
-function insertContent(content, title) {
-    let data = reader.readFile('./layout/layout.html', 'utf8');
-    return data.toString('utf8').replace(/\{\%content\%\}/, content).replace(/\{\%title\%\}/, title)
+function sendRespWithContent(content, title, response) {
+    reader.readFile('./layout/layout.html', 'utf8', (err, data) => {
+        if (err) throw err;
+        let updatedMarkup = data.toString('utf8')
+            .replace(/\{\%content\%\}/, content)
+            .replace(/\{\%title\%\}/, title);
+        response.end(updatedMarkup);
+    });
 }
 
 function getTitle(text) {
